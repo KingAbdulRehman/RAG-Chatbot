@@ -10,7 +10,8 @@ import logging
 import os
 from typing import List, Optional
 
-import google.generativeai as genai
+from google import genai as google_genai
+from google.genai import types as genai_types
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_qdrant import QdrantVectorStore
@@ -19,7 +20,7 @@ from qdrant_client.models import Distance, PayloadSchemaType, VectorParams
 
 logger = logging.getLogger(__name__)
 
-EMBED_MODEL = "models/gemini-embedding-001"
+EMBED_MODEL = "gemini-embedding-001"
 
 
 def _require_env(name: str) -> str:
@@ -39,32 +40,32 @@ def _require_env(name: str) -> str:
 
 class GeminiEmbeddings(Embeddings):
     """
-    LangChain-compatible embeddings using google-generativeai SDK.
-    Calls genai.embed_content() directly — simple and reliable.
+    LangChain-compatible embeddings using google-genai SDK (HTTP transport).
+    Avoids gRPC so it works cleanly inside asyncio.to_thread() on all Python versions.
     """
 
     def __init__(self, api_key: str, model: str = EMBED_MODEL) -> None:
-        genai.configure(api_key=api_key)
+        self._client = google_genai.Client(api_key=api_key)
         self._model = model
         logger.info("GeminiEmbeddings ready — model: %s", model)
 
     def embed_query(self, text: str) -> List[float]:
-        result = genai.embed_content(
+        result = self._client.models.embed_content(
             model=self._model,
-            content=text,
-            task_type="retrieval_query",
+            contents=text,
+            config=genai_types.EmbedContentConfig(task_type="RETRIEVAL_QUERY"),
         )
-        return result["embedding"]
+        return list(result.embeddings[0].values)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         embeddings: List[List[float]] = []
         for text in texts:
-            result = genai.embed_content(
+            result = self._client.models.embed_content(
                 model=self._model,
-                content=text,
-                task_type="retrieval_document",
+                contents=text,
+                config=genai_types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT"),
             )
-            embeddings.append(result["embedding"])
+            embeddings.append(list(result.embeddings[0].values))
         return embeddings
 
 

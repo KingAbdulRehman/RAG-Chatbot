@@ -7,6 +7,7 @@ langchain-text-splitters>=0.3.0
 # Gemini (Google AI) integration
 langchain-google-genai>=2.0.0
 google-generativeai>=0.8.0
+google-genai>=0.8.0
 
 # Qdrant vector database
 langchain-qdrant>=0.2.0
