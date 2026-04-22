@@ -260,7 +260,7 @@ async def _handle_question(question: str) -> None:
 
         tokens: list[str] = []
         async for token in generate_answer_stream(
-            question, COLLECTION_NAME, doc_id=doc_id, history=history
+            question, COLLECTION_NAME, doc_id=doc_id, history=history, docs=docs
         ):
             tokens.append(token)
             await answer_msg.stream_token(token)

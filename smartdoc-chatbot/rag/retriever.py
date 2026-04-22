@@ -201,22 +201,19 @@ async def generate_answer_stream(
     doc_id: Optional[str] = None,
     top_k: int = 5,
     history: Optional[List[Dict[str, str]]] = None,
+    docs: Optional[List[Document]] = None,
 ) -> AsyncGenerator[str, None]:
     """
-    Async generator — retrieves context, builds history-aware prompt,
-    and streams the Gemini answer token-by-token.
+    Async generator — builds a history-aware prompt and streams the answer.
 
-    Args:
-        question:        Current user question.
-        collection_name: Qdrant collection to search.
-        doc_id:          Optional document filter.
-        top_k:           Number of chunks to retrieve.
-        history:         Previous conversation turns (list of role/content dicts).
-
-    Yields:
-        Individual string tokens from Gemini 2.5 Flash.
+    Pass `docs` if already retrieved (avoids blocking the event loop with a
+    second synchronous retrieval call). If omitted, retrieval runs inline.
     """
-    docs = retrieve_chunks(question, collection_name, top_k=top_k, doc_id=doc_id)
+    if docs is None:
+        import asyncio
+        docs = await asyncio.to_thread(
+            retrieve_chunks, question, collection_name, top_k=top_k, doc_id=doc_id
+        )
 
     if not docs:
         yield (
