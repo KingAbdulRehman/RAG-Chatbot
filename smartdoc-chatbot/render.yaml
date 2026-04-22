@@ -3,6 +3,7 @@ services:
   - type: web
     name: smartdoc-ui
     runtime: python
+    pythonVersion: "3.11.9"
     buildCommand: pip install -r requirements.txt
     startCommand: chainlit run app.py --host 0.0.0.0 --port $PORT
     envVars:
@@ -19,6 +20,7 @@ services:
   - type: web
     name: smartdoc-api
     runtime: python
+    pythonVersion: "3.11.9"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
     envVars:
