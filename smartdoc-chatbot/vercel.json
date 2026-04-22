@@ -1,15 +1,12 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api.py": {
+      "runtime": "python3.11",
+      "maxDuration": 60
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api.py"
-    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api.py" }
   ]
 }
