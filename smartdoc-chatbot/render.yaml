@@ -1,0 +1,32 @@
+services:
+  # ── Chainlit Chat UI ──────────────────────────────────────────────
+  - type: web
+    name: smartdoc-ui
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: chainlit run app.py --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_COLLECTION_NAME
+        value: smartdoc
+
+  # ── FastAPI Backend ───────────────────────────────────────────────
+  - type: web
+    name: smartdoc-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_COLLECTION_NAME
+        value: smartdoc

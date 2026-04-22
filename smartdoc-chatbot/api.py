@@ -329,13 +329,6 @@ async def chat(request: ChatRequest):
 
 
 # ─────────────────────────────────────────────────
-# Vercel serverless handler (Mangum wraps FastAPI as ASGI)
-# ─────────────────────────────────────────────────
-from mangum import Mangum
-handler = Mangum(app, lifespan="off")
-
-
-# ─────────────────────────────────────────────────
 # Dev entry point
 # ─────────────────────────────────────────────────
 if __name__ == "__main__":
